@@ -92,6 +92,138 @@
         .motivo-recusa { font-size: 0.8rem; color: #721c24; background: #f8d7da; padding: 4px 8px; border-radius: 6px; display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .motivo-box { display: none; }
         .motivo-box.visible { display: block; }
+
+        /* ============ MODAL DE MOTIVO DE RECUSA ============ */
+        .modal-motivo {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.55);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.15s ease;
+        }
+        .modal-motivo.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-motivo-content {
+            background: white;
+            padding: 26px 24px 20px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: slideUp 0.2s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-motivo-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .modal-motivo-header .icon {
+            background: #f8d7da;
+            color: #721c24;
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .modal-motivo-header h3 {
+            font-size: 1.15rem;
+            color: #1a1a1a;
+            margin: 0;
+        }
+        .modal-motivo-sub {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 16px;
+            padding-left: 48px;
+        }
+
+        .modal-motivo textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s;
+        }
+        .modal-motivo textarea:focus {
+            outline: none;
+            border-color: #e60000;
+            box-shadow: 0 0 0 3px rgba(230,0,0,0.1);
+        }
+
+        .motivo-sugestoes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .motivo-chip {
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        .motivo-chip:hover {
+            background: #e60000;
+            color: white;
+        }
+
+        .modal-motivo-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .modal-motivo-actions button {
+            flex: 1;
+            padding: 11px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.92rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.15s;
+        }
+        .btn-motivo-cancel {
+            background: #f0f0f0;
+            color: #555;
+        }
+        .btn-motivo-cancel:hover { background: #e0e0e0; }
+        .btn-motivo-confirm {
+            background: #e60000;
+            color: white;
+        }
+        .btn-motivo-confirm:hover { background: #cc0000; }
+
+        .motivo-erro {
+            color: #e60000;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: none;
+        }
+        .motivo-erro.visible { display: block; }
         
         @media (max-width: 768px) {
             .header h1 { font-size: 1.3rem; }
@@ -173,6 +305,7 @@
     </table>
 </div>
 
+<!-- Modal principal -->
 <div class="modal" id="modalVenda">
     <div class="modal-content">
         <div class="modal-header">
@@ -213,6 +346,33 @@
                 <button type="button" class="btn btn-outline" id="btnCancel">Cancelar</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Modal de Motivo de Recusa -->
+<div class="modal-motivo" id="modalMotivo">
+    <div class="modal-motivo-content">
+        <div class="modal-motivo-header">
+            <div class="icon">❌</div>
+            <h3>Motivo da Recusa</h3>
+        </div>
+        <p class="modal-motivo-sub">Porque é que o cliente recusou esta proposta?</p>
+        
+        <textarea id="motivoTexto" placeholder="Escreve aqui o motivo..." maxlength="200"></textarea>
+        <div class="motivo-erro" id="motivoErro">⚠️ É obrigatório indicar o motivo</div>
+        
+        <div class="motivo-sugestoes">
+            <button type="button" class="motivo-chip" data-motivo="Preço elevado">Preço elevado</button>
+            <button type="button" class="motivo-chip" data-motivo="Já tem operadora">Já tem operadora</button>
+            <button type="button" class="motivo-chip" data-motivo="Sem cobertura">Sem cobertura</button>
+            <button type="button" class="motivo-chip" data-motivo="Não está interessado">Não está interessado</button>
+            <button type="button" class="motivo-chip" data-motivo="Vai pensar">Vai pensar</button>
+        </div>
+        
+        <div class="modal-motivo-actions">
+            <button type="button" class="btn-motivo-cancel" id="motivoCancelar">Cancelar</button>
+            <button type="button" class="btn-motivo-confirm" id="motivoConfirmar">Confirmar recusa</button>
+        </div>
     </div>
 </div>
 
@@ -606,19 +766,11 @@ function renderizar() {
             select.addEventListener('change', async function() {
                 const novoEstado = this.value;
                 const key = this.dataset.key;
+                const estadoOriginal = vendasFiltradas[key]?.estado || 'Pendente';
                 
                 if (novoEstado === 'Recusado') {
-                    const motivo = prompt('❌ Motivo da recusa:\n\nEx: Preço elevado, já tem operadora, não tem cobertura...');
-                    if (motivo === null || !motivo.trim()) {
-                        const venda = vendasFiltradas[key];
-                        this.value = venda.estado;
-                        if (motivo !== null) alert('É obrigatório indicar o motivo da recusa!');
-                        return;
-                    }
-                    await vendasRef.child(key).update({ 
-                        estado: novoEstado,
-                        motivoRecusa: motivo.trim()
-                    });
+                    // Abre o modal bonito em vez do prompt feio
+                    abrirModalMotivo(key, estadoOriginal, this);
                 } else {
                     await vendasRef.child(key).update({ 
                         estado: novoEstado,
@@ -644,7 +796,7 @@ function renderizar() {
     document.getElementById('numTotal').textContent = valores.length;
 }
 
-// ============ MODAL ============
+// ============ MODAL PRINCIPAL ============
 function abrirModal(key = null, venda = null) {
     editKey = key;
     document.getElementById('modalTitle').textContent = key ? 'Editar Proposta' : 'Nova Proposta';
@@ -696,6 +848,71 @@ document.getElementById('estadoSelect').addEventListener('change', function() {
         motivoBox.classList.remove('visible');
         document.getElementById('motivoRecusa').value = '';
     }
+});
+
+// ============ MODAL DE MOTIVO DE RECUSA ============
+let motivoPendente = null;
+
+function abrirModalMotivo(key, estadoOriginal, selectElement) {
+    motivoPendente = { key, estadoOriginal, selectElement };
+    const modal = document.getElementById('modalMotivo');
+    const textarea = document.getElementById('motivoTexto');
+    const erro = document.getElementById('motivoErro');
+    
+    textarea.value = '';
+    erro.classList.remove('visible');
+    modal.classList.add('active');
+    setTimeout(() => textarea.focus(), 100);
+}
+
+function fecharModalMotivo(reverter = true) {
+    const modal = document.getElementById('modalMotivo');
+    modal.classList.remove('active');
+    
+    if (reverter && motivoPendente) {
+        motivoPendente.selectElement.value = motivoPendente.estadoOriginal;
+    }
+    motivoPendente = null;
+}
+
+document.querySelectorAll('.motivo-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.getElementById('motivoTexto').value = chip.dataset.motivo;
+        document.getElementById('motivoErro').classList.remove('visible');
+    });
+});
+
+document.getElementById('motivoCancelar').addEventListener('click', () => fecharModalMotivo(true));
+
+document.getElementById('modalMotivo').addEventListener('click', (e) => {
+    if (e.target.id === 'modalMotivo') fecharModalMotivo(true);
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('modalMotivo').classList.contains('active')) {
+        fecharModalMotivo(true);
+    }
+});
+
+document.getElementById('motivoConfirmar').addEventListener('click', async () => {
+    const texto = document.getElementById('motivoTexto').value.trim();
+    const erro = document.getElementById('motivoErro');
+    
+    if (!texto) {
+        erro.classList.add('visible');
+        document.getElementById('motivoTexto').focus();
+        return;
+    }
+    
+    if (!motivoPendente) return;
+    
+    const { key } = motivoPendente;
+    fecharModalMotivo(false);
+    
+    await vendasRef.child(key).update({ 
+        estado: 'Recusado',
+        motivoRecusa: texto
+    });
 });
 
 // ============ SUBMETER ============
